@@ -536,8 +536,9 @@
   function openLightbox(src, alt){
     lbImg.src = src;
     lbImg.alt = alt || '';
-    // 원본의 70% 크기로 표시(naturalWidth 기준 → 브라우저 무관하게 일정)
-    const applyHalf = ()=>{ lbImg.style.width = (lbImg.naturalWidth * 0.7) + 'px'; };
+    // 기본 70% 크기로 표시. 단 win_ai_learn.png는 원본 크기(100%) 유지.
+    const scale = src.indexOf('win_ai_learn.png') !== -1 ? 1 : 0.7;
+    const applyHalf = ()=>{ lbImg.style.width = (lbImg.naturalWidth * scale) + 'px'; };
     if (lbImg.complete && lbImg.naturalWidth) applyHalf();
     else lbImg.onload = applyHalf;
     lb.classList.add('open');
