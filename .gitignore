@@ -1,0 +1,7 @@
+# Ignore everything by default
+/*
+
+# Keep only these
+!/README.md
+!/cap_img/
+!/.gitignore
