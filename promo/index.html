@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FiTok — 같은 WiFi, 서버 없이 바로 채팅</title>
+<meta name="description" content="FiTok은 서버 없이 같은 WiFi의 사람들과 바로 대화하는 P2P 채팅 앱입니다. Windows 버전은 완전 오프라인 AI 메뉴 어시스턴트를 제공합니다." />
+<style>
+  :root{
+    --blue:#1E8FFF;
+    --blue-deep:#0B6BDE;
+    --purple:#7C5CFC;
+    --ink:#0E1726;
+    --ink-soft:#48566b;
+    --bg:#f5f8ff;
+    --card:#ffffff;
+    --line:#e6ecf7;
+    --shadow:0 18px 50px -20px rgba(17,58,128,.35);
+    --radius:22px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Segoe UI','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;
+    color:var(--ink);
+    background:var(--bg);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{text-decoration:none;color:inherit}
+  .wrap{max-width:1140px;margin:0 auto;padding:0 22px}
+  .grad-text{
+    background:linear-gradient(92deg,var(--blue) 0%,var(--purple) 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+
+  /* NAV */
+  header.nav{
+    position:sticky;top:0;z-index:50;
+    background:rgba(245,248,255,.82);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;height:64px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:800;font-size:20px;letter-spacing:-.3px}
+  .brand img{width:36px;height:36px;border-radius:10px;box-shadow:0 6px 14px -6px rgba(30,143,255,.7)}
+  .nav-links{display:flex;gap:26px;font-weight:600;font-size:15px;color:var(--ink-soft)}
+  .nav-links a:hover{color:var(--blue)}
+  .nav-cta{
+    background:linear-gradient(92deg,var(--blue),var(--blue-deep));
+    color:#fff;padding:9px 18px;border-radius:999px;font-weight:700;font-size:14px;
+    box-shadow:0 10px 22px -10px rgba(30,143,255,.9);
+  }
+  @media(max-width:720px){.nav-links{display:none}}
+
+  /* HERO */
+  .hero{position:relative;overflow:hidden;padding:78px 0 70px}
+  .hero::before{
+    content:"";position:absolute;inset:0;z-index:-1;
+    background:
+      radial-gradient(900px 420px at 78% -8%,rgba(124,92,252,.18),transparent 60%),
+      radial-gradient(760px 440px at 8% 8%,rgba(30,143,255,.20),transparent 58%);
+  }
+  .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center}
+  .pill{
+    display:inline-flex;align-items:center;gap:8px;
+    background:#fff;border:1px solid var(--line);color:var(--blue-deep);
+    font-weight:700;font-size:13px;padding:7px 14px;border-radius:999px;
+    box-shadow:0 6px 18px -12px rgba(30,143,255,.6);
+  }
+  .pill .dot{width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 4px rgba(34,197,94,.18)}
+  h1.hero-title{font-size:clamp(34px,5vw,56px);line-height:1.12;letter-spacing:-1.4px;font-weight:850;margin:20px 0 18px}
+  .hero-sub{font-size:clamp(16px,2vw,19px);color:var(--ink-soft);max-width:520px}
+  .hero-badges{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+  .mini{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;font-weight:600;color:var(--ink-soft);background:#fff;border:1px solid var(--line);padding:7px 13px;border-radius:12px}
+  .hero-cta-row{display:flex;gap:14px;margin-top:30px;flex-wrap:wrap}
+  .btn{
+    display:inline-flex;align-items:center;gap:10px;cursor:pointer;border:0;
+    font-family:inherit;font-weight:750;font-size:15.5px;padding:14px 24px;border-radius:14px;
+    transition:transform .12s ease,box-shadow .12s ease;
+  }
+  .btn:active{transform:translateY(1px)}
+  .btn-primary{background:linear-gradient(92deg,var(--blue),var(--blue-deep));color:#fff;box-shadow:0 16px 30px -14px rgba(30,143,255,.95)}
+  .btn-dark{background:var(--ink);color:#fff;box-shadow:0 16px 30px -16px rgba(14,23,38,.8)}
+  .btn svg{width:20px;height:20px;flex:none}
+
+  /* PHONE MOCK */
+  .hero-art{display:flex;justify-content:center}
+  .phone{
+    width:270px;height:540px;border-radius:38px;background:#0e1726;
+    padding:12px;box-shadow:var(--shadow);position:relative;
+    border:1px solid rgba(255,255,255,.08);
+  }
+  .phone .notch{position:absolute;top:18px;left:50%;transform:translateX(-50%);width:110px;height:22px;background:#0e1726;border-radius:0 0 14px 14px;z-index:3}
+  .screen{width:100%;height:100%;border-radius:28px;overflow:hidden;background:linear-gradient(180deg,#eaf3ff,#f7faff);display:flex;flex-direction:column}
+  .scr-top{background:linear-gradient(92deg,var(--blue),var(--blue-deep));color:#fff;padding:26px 16px 14px;border-radius:0 0 18px 18px}
+  .scr-top .ssid{font-size:12px;opacity:.85}
+  .scr-top .ttl{font-weight:800;font-size:17px;margin-top:2px}
+  .people{display:flex;gap:7px;padding:12px;flex-wrap:wrap}
+  .chipuser{font-size:11px;font-weight:700;background:#fff;border:1px solid var(--line);padding:5px 9px;border-radius:999px;color:var(--ink-soft)}
+  .chipuser.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+  .bubbles{flex:1;padding:6px 12px;display:flex;flex-direction:column;gap:8px;overflow:hidden}
+  .bub{max-width:78%;font-size:12px;padding:8px 11px;border-radius:14px;line-height:1.4}
+  .bub.them{background:#fff;border:1px solid var(--line);align-self:flex-start;border-bottom-left-radius:5px}
+  .bub.me{background:linear-gradient(92deg,var(--blue),var(--blue-deep));color:#fff;align-self:flex-end;border-bottom-right-radius:5px}
+  .bub.whisper{background:#efeaff;border:1px solid #ddd2ff;color:#5b46c9;align-self:flex-end}
+  .scr-input{margin:10px 12px 14px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:9px 14px;font-size:11.5px;color:#9aa6b8;display:flex;justify-content:space-between;align-items:center}
+  .send-dot{width:24px;height:24px;border-radius:50%;background:linear-gradient(92deg,var(--blue),var(--blue-deep))}
+
+  /* REAL SCREENSHOT FRAMES */
+  .device{
+    background:#0e1726;border-radius:34px;padding:9px;
+    box-shadow:var(--shadow);border:1px solid rgba(255,255,255,.08);
+  }
+  .device img{display:block;width:100%;border-radius:26px}
+  .shots{
+    display:flex;gap:24px;justify-content:center;align-items:flex-start;
+    flex-wrap:wrap;margin-top:6px;
+  }
+  .shot{width:230px;text-align:center}
+  .shot .device{transition:transform .18s ease}
+  .shot:hover .device{transform:translateY(-6px)}
+  .shot .cap{margin-top:14px;font-size:13.5px;font-weight:650;color:var(--ink-soft)}
+  .win-band .shot .cap{color:#aebbd4}
+  @media(max-width:520px){.shot{width:46%}.shots{gap:14px}}
+
+  .ai-showcase{display:grid;grid-template-columns:300px 1fr;gap:34px;align-items:center;margin-bottom:44px}
+  .learn-card{
+    position:relative;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.1);
+    border-radius:20px;padding:28px 28px 22px;
+  }
+  .learn-card h3{font-size:21px;font-weight:850;color:#fff;letter-spacing:-.4px;margin-bottom:10px}
+  .learn-card p{color:#aebbd4;font-size:15px;margin-bottom:20px}
+  .learn-card .device{padding:0;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.12);box-shadow:0 14px 34px -20px rgba(0,0,0,.7)}
+  .learn-card .device img{border-radius:0}
+  .badge-real{
+    position:absolute;top:-12px;right:18px;background:linear-gradient(92deg,var(--blue),var(--purple));
+    color:#fff;font-size:11.5px;font-weight:800;padding:5px 12px;border-radius:999px;letter-spacing:.3px;
+    box-shadow:0 8px 18px -8px rgba(124,92,252,.9);
+  }
+  @media(max-width:820px){.ai-showcase{grid-template-columns:1fr;justify-items:center}.learn-card{width:100%}}
+
+  /* SECTIONS */
+  section{padding:74px 0}
+  .sec-head{text-align:center;max-width:680px;margin:0 auto 48px}
+  .eyebrow{font-weight:800;letter-spacing:1.5px;font-size:12.5px;text-transform:uppercase;color:var(--blue-deep)}
+  .sec-head h2{font-size:clamp(27px,3.4vw,40px);letter-spacing:-1px;margin:12px 0 14px;font-weight:850}
+  .sec-head p{color:var(--ink-soft);font-size:16.5px}
+
+  .platform-tag{display:inline-flex;align-items:center;gap:8px;font-weight:800;font-size:13px;padding:6px 13px;border-radius:999px;margin-bottom:18px}
+  .tag-android{background:#e7f8ee;color:#1f9d57}
+  .tag-windows{background:#e7f1ff;color:var(--blue-deep)}
+  .tag-ai{background:linear-gradient(92deg,rgba(124,92,252,.16),rgba(30,143,255,.16));color:#6a4ff0}
+
+  .grid{display:grid;gap:20px}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g2{grid-template-columns:repeat(2,1fr)}
+  @media(max-width:900px){.g3{grid-template-columns:1fr 1fr}}
+  @media(max-width:620px){.g3,.g2{grid-template-columns:1fr}}
+
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:26px 24px;box-shadow:0 10px 30px -22px rgba(17,58,128,.4);
+    transition:transform .15s ease,box-shadow .15s ease;
+  }
+  .card:hover{transform:translateY(-4px);box-shadow:0 22px 44px -24px rgba(17,58,128,.45)}
+  .ico{
+    width:48px;height:48px;border-radius:14px;display:grid;place-items:center;margin-bottom:16px;
+    background:linear-gradient(135deg,rgba(30,143,255,.14),rgba(124,92,252,.14));
+  }
+  .ico svg{width:26px;height:26px}
+  .card h3{font-size:18px;font-weight:800;letter-spacing:-.3px;margin-bottom:7px}
+  .card p{color:var(--ink-soft);font-size:14.5px}
+
+  .win-band{background:linear-gradient(180deg,#0c1426,#101d36);color:#fff}
+  .win-band .eyebrow{color:#7fb3ff}
+  .win-band .sec-head p{color:#aebbd4}
+  .win-band .card{background:rgba(255,255,255,.045);border-color:rgba(255,255,255,.09);box-shadow:none}
+  .win-band .card h3{color:#fff}
+  .win-band .card p{color:#aebbd4}
+  .win-band .ico{background:linear-gradient(135deg,rgba(30,143,255,.3),rgba(124,92,252,.3))}
+  .ai-banner{
+    display:flex;align-items:center;gap:18px;flex-wrap:wrap;justify-content:center;
+    background:rgba(124,92,252,.12);border:1px solid rgba(124,92,252,.3);
+    border-radius:18px;padding:18px 24px;margin-bottom:40px;font-weight:600;color:#cdd6ee;font-size:15px;
+  }
+  .ai-banner b{color:#fff}
+
+  /* DOWNLOAD */
+  .dl-band{background:linear-gradient(160deg,#eef4ff,#f7faff)}
+  .dl-grid{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+  @media(max-width:760px){.dl-grid{grid-template-columns:1fr}}
+  .dl-card{
+    background:#fff;border:1px solid var(--line);border-radius:24px;padding:34px 30px;text-align:center;
+    box-shadow:var(--shadow);
+  }
+  .dl-os{display:inline-flex;align-items:center;gap:10px;font-weight:850;font-size:21px;letter-spacing:-.4px;margin-bottom:6px}
+  .dl-os svg{width:26px;height:26px}
+  .dl-card .note{color:var(--ink-soft);font-size:14px;margin-bottom:20px}
+  .qr-box{
+    width:172px;height:172px;margin:0 auto 22px;border-radius:18px;padding:12px;
+    background:#fff;border:1px solid var(--line);position:relative;
+  }
+  .qr-box img{width:100%;height:100%;display:block;border-radius:8px}
+  .qr-tip{position:absolute;bottom:-11px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:700;background:var(--ink);color:#fff;padding:4px 11px;border-radius:999px;white-space:nowrap}
+  .dl-feat{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-bottom:22px}
+  .dl-feat span{font-size:12px;font-weight:650;color:var(--ink-soft);background:var(--bg);border:1px solid var(--line);padding:5px 11px;border-radius:999px}
+  .btn-block{width:100%;justify-content:center}
+
+  /* TOAST */
+  .toast{
+    position:fixed;left:50%;bottom:34px;transform:translate(-50%,28px);
+    background:var(--ink);color:#fff;font-weight:700;font-size:15px;
+    padding:14px 26px;border-radius:999px;box-shadow:0 18px 40px -14px rgba(0,0,0,.5);
+    opacity:0;pointer-events:none;transition:all .32s cubic-bezier(.2,.8,.2,1);z-index:200;
+    display:flex;align-items:center;gap:10px;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+  .toast svg{width:20px;height:20px}
+
+  /* FOOTER */
+  footer{background:#0c1426;color:#9fb0cc;padding:46px 0 38px}
+  .foot-grid{display:flex;justify-content:space-between;align-items:flex-start;gap:30px;flex-wrap:wrap}
+  .foot-brand{display:flex;align-items:center;gap:11px;color:#fff;font-weight:800;font-size:19px}
+  .foot-brand img{width:34px;height:34px;border-radius:9px}
+  footer .muted{font-size:13.5px;max-width:340px;margin-top:12px;line-height:1.7}
+  .foot-links{display:flex;gap:40px;flex-wrap:wrap}
+  .foot-col h4{color:#fff;font-size:13px;letter-spacing:.5px;text-transform:uppercase;margin-bottom:12px}
+  .foot-col a{display:block;font-size:14px;margin-bottom:9px;color:#9fb0cc}
+  .foot-col a:hover{color:#fff}
+  .copy{border-top:1px solid rgba(255,255,255,.08);margin-top:34px;padding-top:20px;font-size:13px;text-align:center}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="#top"><img src="app_icon.png" alt="FiTok" /><span>Fi<span class="grad-text">Tok</span></span></a>
+    <nav class="nav-links">
+      <a href="#android">안드로이드</a>
+      <a href="#windows">윈도우</a>
+      <a href="#ai">AI 기능</a>
+      <a href="#download">다운로드</a>
+    </nav>
+    <a class="nav-cta" href="#download">앱 받기</a>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="pill"><span class="dot"></span>서버 없는 P2P · 완전 오프라인</span>
+      <h1 class="hero-title">같은 WiFi라면,<br><span class="grad-text">바로 대화가 시작</span>돼요.</h1>
+      <p class="hero-sub">회원가입도, 서버도, 인터넷도 필요 없습니다. 같은 와이파이에 접속한 사람들을 자동으로 찾아 1:1 귓속말부터 전체 채팅까지 — FiTok 하나로.</p>
+      <div class="hero-badges">
+        <span class="mini">🔒 메시지는 기기 메모리에만</span>
+        <span class="mini">📡 자동 발견</span>
+        <span class="mini">🤖 윈도우 전용 오프라인 AI</span>
+      </div>
+      <div class="hero-cta-row">
+        <button class="btn btn-primary" data-dl>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.6 20.6 12 12.2l-8.4-8.4c-.2.2-.3.5-.3.9v15c0 .4.1.7.3.9zM14.5 14.7 5.9 19.6l9-5.2zM18.9 10.2l-2.6-1.5-3 3 3 3 2.6-1.5c.9-.5.9-1.5 0-2zM5.9 4.4l8.6 4.9 1.8-1.8z"/></svg>
+          Android 다운로드
+        </button>
+        <button class="btn btn-dark" data-dl>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 4.6 10.4 3.6v7.4H3zM11.4 3.5 21 2.2v8.8h-9.6zM3 13h7.4v7.4L3 19.4zM11.4 13H21v8.8l-9.6-1.3z"/></svg>
+          Windows 다운로드
+        </button>
+      </div>
+    </div>
+
+    <div class="hero-art">
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen">
+          <img src="img/and_chat.png" alt="FiTok 실제 채팅 화면" style="width:100%;height:100%;object-fit:cover;display:block" />
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ANDROID -->
+<section id="android">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="platform-tag tag-android">🤖 Android</span>
+      <h2>설치하고 이름만 정하면 끝</h2>
+      <p>같은 네트워크의 사람들과 가볍게 연결되는, 안드로이드의 핵심 채팅 기능</p>
+    </div>
+    <div class="grid g3">
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#1E8FFF" stroke-width="2" stroke-linecap="round"><path d="M5 12.5a7 7 0 0 1 14 0"/><path d="M2 9a11 11 0 0 1 20 0"/><circle cx="12" cy="17" r="1.5" fill="#1E8FFF" stroke="none"/></svg></div>
+        <h3>자동으로 찾아주는 사람들</h3>
+        <p>같은 WiFi(서브넷)의 사용자를 실시간으로 발견하고, 응답 없는 사람은 목록에서 자동으로 정리합니다.</p>
+      </div>
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#7C5CFC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="14" rx="3"/><path d="M9 19l-3 2v-2"/><path d="M12 9v4"/><circle cx="12" cy="15.5" r=".6" fill="#7C5CFC"/></svg></div>
+        <h3>전체 채팅 & 귓속말(DM)</h3>
+        <p>이름을 탭해 상대를 선택하면 그 사람에게만 가는 🔒 귓속말. 선택을 풀면 다시 전체 대화로.</p>
+      </div>
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#1E8FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
+        <h3>서버 없는 진짜 P2P</h3>
+        <p>메시지는 어떤 서버도 거치지 않고 기기끼리 직접 오갑니다. 세션이 끝나면 기기 메모리에서 사라져요.</p>
+      </div>
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#e0564f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.5 8 8 11 4.5-3 8-6 8-11V5z"/><path d="M12 8v4"/><circle cx="12" cy="15.5" r=".7" fill="#e0564f"/></svg></div>
+        <h3>신고 · 차단</h3>
+        <p>불편한 사용자는 길게 눌러 바로 신고하거나 차단. 차단하면 해당 사용자의 메시지가 더 이상 보이지 않습니다.</p>
+      </div>
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#1f9d57" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></div>
+        <h3>가입 없이 1초 시작</h3>
+        <p>계정도 비밀번호도 없습니다. “오늘의 나는 누구?”에 이름만 정하면 즉시 참여.</p>
+      </div>
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#7C5CFC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+        <h3>광고 · 추적 제로</h3>
+        <p>분석 도구, 광고, 제3자 SDK가 전혀 없습니다. 위치 등 민감 권한도 사용하지 않아요.</p>
+      </div>
+    </div>
+
+    <div class="shots" style="margin-top:48px">
+      <div class="shot">
+        <div class="device"><img src="img/and_login.png" alt="이름 입력 화면" /></div>
+        <div class="cap">이름만 정하면 바로 입장</div>
+      </div>
+      <div class="shot">
+        <div class="device"><img src="img/and_chat.png" alt="WiFi 사람들과 채팅" /></div>
+        <div class="cap">같은 WiFi 사람들과 실시간 채팅</div>
+      </div>
+      <div class="shot">
+        <div class="device"><img src="img/and_price.png" alt="메뉴·가격 대화" /></div>
+        <div class="cap">전체 채팅 · 귓속말</div>
+      </div>
+      <div class="shot">
+        <div class="device"><img src="img/and_english.png" alt="다국어 대화" /></div>
+        <div class="cap">누구와도 가볍게 한마디</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WINDOWS -->
+<section id="windows" class="win-band">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="platform-tag tag-windows">🪟 Windows</span>
+      <h2>데스크톱에선 한 단계 더</h2>
+      <p>안드로이드의 모든 채팅 기능에 더해, 윈도우 앱에는 완전 오프라인 AI 어시스턴트가 내장됩니다</p>
+    </div>
+
+    <div class="grid g3">
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#7fb3ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+        <h3>채팅 기능 그대로</h3>
+        <p>자동 발견, 전체 채팅, 🔒 귓속말, 신고·차단까지 모바일과 동일하게 큰 화면에서.</p>
+      </div>
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#7fb3ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4"/><circle cx="12" cy="13" r="6"/></svg></div>
+        <h3>방화벽 허용 한 번이면 끝</h3>
+        <p>별도 설정 없이 동작합니다. 첫 실행 시 방화벽 허용만 누르면 바로 같은 네트워크에 연결돼요.</p>
+      </div>
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#7fb3ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-2"/><path d="M3 12h9M9 9l3 3-3 3"/></svg></div>
+        <h3>안정적인 연결 유지</h3>
+        <p>최초 발견 이후엔 유니캐스트로 직접 연결을 유지해, 공유기가 멀티캐스트를 끊어도 대화가 이어집니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AI -->
+<section id="ai" class="win-band" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="platform-tag tag-ai">✨ Windows 전용 AI</span>
+      <h2>가게의 메뉴를 아는 <span class="grad-text">나만의 AI 챗봇</span></h2>
+      <p>인터넷 없이 내 PC 안에서 도는 AI. 메뉴판을 학습시키면 손님 질문에 척척 답합니다</p>
+    </div>
+
+    <div class="ai-banner">
+      <span>🔌 <b>완전 오프라인</b> · 모델은 최초 1회만 다운로드</span>
+      <span>🧠 <b>내장 AI 엔진</b> · 클라우드 전송 없음</span>
+      <span>🍽️ <b>메뉴 특화</b> 어시스턴트</span>
+    </div>
+
+    <div class="ai-showcase">
+      <div class="shot" style="width:280px">
+        <div class="device"><img src="img/win_ai_chat.png" alt="윈도우 앱 AI 챗봇 실제 화면" /></div>
+        <div class="cap">실제 화면 · 메뉴 추천부터 가격까지 AI가 척척 답변</div>
+      </div>
+      <div class="learn-card">
+        <span class="badge-real">실제 캡처</span>
+        <h3>메뉴판만 넣으면, 우리 가게 AI 완성</h3>
+        <p>AI 이름·프롬프트를 정하고, 텍스트·이미지·문서로 메뉴를 학습시키면 — 손님 질문에 바로 답하는 챗봇이 됩니다. 모두 내 PC 안에서.</p>
+        <div class="device"><img src="img/win_ai_learn.png" alt="AI 메뉴 학습 패널" /></div>
+      </div>
+    </div>
+
+    <div class="grid g2">
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#a98bff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+        <h3>메뉴판 학습 (텍스트·이미지·문서)</h3>
+        <p>메뉴와 가격을 직접 입력하거나, 메뉴판 <b>사진을 OCR</b>로 읽고, <b>PDF·텍스트 문서</b>를 그대로 학습시킬 수 있어요.</p>
+      </div>
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#a98bff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H8l-4 4V5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/></svg></div>
+        <h3>메뉴에 대해 무엇이든 질문</h3>
+        <p>“매운 거 빼고 추천해줘”, “2만원 이하 인기 메뉴는?” — 학습한 메뉴를 바탕으로 자연스럽게 답합니다.</p>
+      </div>
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#a98bff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10"/><path d="M2 17h20v2a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"/></svg></div>
+        <h3>내 PC 안에서만 처리</h3>
+        <p>질문도 메뉴 데이터도 외부로 나가지 않습니다. 네트워크가 끊겨도 AI는 그대로 작동해요.</p>
+      </div>
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#a98bff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.4-2.3 1a7 7 0 0 0-1.7-1l-.4-2.6H9.5L9 4.6a7 7 0 0 0-1.7 1l-2.3-1-2 3.4L5 9.9a7 7 0 0 0 0 2l-2 1.6 2 3.4 2.3-1a7 7 0 0 0 1.7 1l.4 2.6h4l.4-2.6a7 7 0 0 0 1.7-1l2.3 1 2-3.4-2-1.6c.1-.3.1-.6.1-.9z"/></svg></div>
+        <h3>이름·성격·프롬프트 커스터마이즈</h3>
+        <p>AI 이름과 역할 프롬프트를 자유롭게 바꾸고, 컨텍스트 사용량까지 한눈에 확인할 수 있습니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DOWNLOAD -->
+<section id="download" class="dl-band">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Download</span>
+      <h2>지금 FiTok 받기</h2>
+      <p>QR 코드를 스캔하거나 버튼을 눌러 다운로드하세요</p>
+    </div>
+
+    <div class="dl-grid">
+      <!-- Android -->
+      <div class="dl-card">
+        <div class="dl-os">
+          <svg viewBox="0 0 24 24" fill="#1f9d57"><path d="M3.6 20.6 12 12.2l-8.4-8.4c-.2.2-.3.5-.3.9v15c0 .4.1.7.3.9zM14.5 14.7 5.9 19.6l9-5.2zM18.9 10.2l-2.6-1.5-3 3 3 3 2.6-1.5c.9-.5.9-1.5 0-2zM5.9 4.4l8.6 4.9 1.8-1.8z"/></svg>
+          Android
+        </div>
+        <p class="note">Android 휴대폰·태블릿용</p>
+        <div class="qr-box">
+          <img alt="Android QR (준비중)" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='148' height='148' viewBox='0 0 148 148'><rect width='148' height='148' fill='%23ffffff'/><g fill='%23c3cee0'><rect x='8' y='8' width='40' height='40'/><rect x='100' y='8' width='40' height='40'/><rect x='8' y='100' width='40' height='40'/></g><g fill='%23ffffff'><rect x='16' y='16' width='24' height='24'/><rect x='108' y='16' width='24' height='24'/><rect x='16' y='108' width='24' height='24'/></g><g fill='%231f9d57'><rect x='22' y='22' width='12' height='12'/><rect x='114' y='22' width='12' height='12'/><rect x='22' y='114' width='12' height='12'/></g><g fill='%23c3cee0'><rect x='60' y='12' width='8' height='8'/><rect x='76' y='20' width='8' height='8'/><rect x='60' y='36' width='8' height='8'/><rect x='12' y='60' width='8' height='8'/><rect x='28' y='68' width='8' height='8'/><rect x='44' y='60' width='8' height='8'/><rect x='60' y='60' width='8' height='8'/><rect x='76' y='60' width='8' height='8'/><rect x='92' y='68' width='8' height='8'/><rect x='108' y='60' width='8' height='8'/><rect x='124' y='68' width='8' height='8'/><rect x='68' y='76' width='8' height='8'/><rect x='84' y='84' width='8' height='8'/><rect x='100' y='92' width='8' height='8'/><rect x='116' y='100' width='8' height='8'/><rect x='60' y='92' width='8' height='8'/><rect x='68' y='108' width='8' height='8'/><rect x='84' y='116' width='8' height='8'/><rect x='100' y='124' width='8' height='8'/><rect x='124' y='124' width='8' height='8'/><rect x='124' y='108' width='8' height='8'/></g></svg>">
+          <span class="qr-tip">URL 준비중</span>
+        </div>
+        <div class="dl-feat"><span>WiFi P2P 채팅</span><span>귓속말</span><span>신고·차단</span></div>
+        <button class="btn btn-primary btn-block" data-dl>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 16l-5-5h3V4h4v7h3z"/><path d="M5 18h14v2H5z"/></svg>
+          Android 다운로드
+        </button>
+      </div>
+
+      <!-- Windows -->
+      <div class="dl-card">
+        <div class="dl-os">
+          <svg viewBox="0 0 24 24" fill="#1E8FFF"><path d="M3 4.6 10.4 3.6v7.4H3zM11.4 3.5 21 2.2v8.8h-9.6zM3 13h7.4v7.4L3 19.4zM11.4 13H21v8.8l-9.6-1.3z"/></svg>
+          Windows
+        </div>
+        <p class="note">Windows 10 / 11 데스크톱용 · AI 내장</p>
+        <div class="qr-box">
+          <img alt="Windows QR (준비중)" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='148' height='148' viewBox='0 0 148 148'><rect width='148' height='148' fill='%23ffffff'/><g fill='%23c3cee0'><rect x='8' y='8' width='40' height='40'/><rect x='100' y='8' width='40' height='40'/><rect x='8' y='100' width='40' height='40'/></g><g fill='%23ffffff'><rect x='16' y='16' width='24' height='24'/><rect x='108' y='16' width='24' height='24'/><rect x='16' y='108' width='24' height='24'/></g><g fill='%231E8FFF'><rect x='22' y='22' width='12' height='12'/><rect x='114' y='22' width='12' height='12'/><rect x='22' y='114' width='12' height='12'/></g><g fill='%23c3cee0'><rect x='64' y='12' width='8' height='8'/><rect x='80' y='20' width='8' height='8'/><rect x='64' y='36' width='8' height='8'/><rect x='12' y='64' width='8' height='8'/><rect x='28' y='72' width='8' height='8'/><rect x='44' y='64' width='8' height='8'/><rect x='64' y='64' width='8' height='8'/><rect x='80' y='64' width='8' height='8'/><rect x='96' y='72' width='8' height='8'/><rect x='112' y='64' width='8' height='8'/><rect x='128' y='72' width='8' height='8'/><rect x='72' y='80' width='8' height='8'/><rect x='88' y='88' width='8' height='8'/><rect x='104' y='96' width='8' height='8'/><rect x='120' y='104' width='8' height='8'/><rect x='64' y='96' width='8' height='8'/><rect x='72' y='112' width='8' height='8'/><rect x='88' y='120' width='8' height='8'/><rect x='104' y='128' width='8' height='8'/><rect x='128' y='128' width='8' height='8'/><rect x='128' y='112' width='8' height='8'/></g></svg>">
+          <span class="qr-tip">URL 준비중</span>
+        </div>
+        <div class="dl-feat"><span>채팅 전체</span><span>오프라인 AI</span><span>메뉴 OCR</span></div>
+        <button class="btn btn-dark btn-block" data-dl>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 16l-5-5h3V4h4v7h3z"/><path d="M5 18h14v2H5z"/></svg>
+          Windows 다운로드
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-brand"><img src="app_icon.png" alt="FiTok" />FiTok</div>
+        <p class="muted">서버 없이 같은 WiFi의 사람들과 직접 대화하는 P2P 채팅 앱. 개인정보를 수집하지 않으며, 메시지는 기기 메모리에만 존재합니다.</p>
+      </div>
+      <div class="foot-links">
+        <div class="foot-col">
+          <h4>제품</h4>
+          <a href="#android">안드로이드 기능</a>
+          <a href="#windows">윈도우 기능</a>
+          <a href="#ai">AI 어시스턴트</a>
+          <a href="#download">다운로드</a>
+        </div>
+        <div class="foot-col">
+          <h4>지원</h4>
+          <a href="#download">설치 안내</a>
+          <a href="mailto:gmdevshk@gmail.com">개인정보처리방침</a>
+          <a href="mailto:gmdevshk@gmail.com">문의하기</a>
+        </div>
+      </div>
+    </div>
+    <div class="copy">© 2026 FiTok · gmdevshk@gmail.com · 광고 없음 · 추적 없음</div>
+  </div>
+</footer>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+  <span>준비중입니다.</span>
+</div>
+
+<script>
+  const toast = document.getElementById('toast');
+  let toastTimer;
+  function showToast(){
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>toast.classList.remove('show'), 2200);
+  }
+  document.querySelectorAll('[data-dl]').forEach(btn=>{
+    btn.addEventListener('click', showToast);
+  });
+</script>
+</body>
+</html>
