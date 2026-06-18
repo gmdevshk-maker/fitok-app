@@ -228,6 +228,13 @@
   .foot-col a{display:block;font-size:14px;margin-bottom:9px;color:#9fb0cc}
   .foot-col a:hover{color:#fff}
   .copy{border-top:1px solid rgba(255,255,255,.08);margin-top:34px;padding-top:20px;font-size:13px;text-align:center}
+  /* 스크린샷 라이트박스: 클릭 시 원본 크기로 띄우고, 아무 곳이나 클릭하면 닫힘 */
+  img[src^="img/"]{cursor:zoom-in}
+  #lightbox{position:fixed;inset:0;z-index:9999;display:none;background:rgba(0,0,0,.88);
+    overflow:auto;cursor:zoom-out;-webkit-overflow-scrolling:touch;padding:24px}
+  #lightbox.open{display:flex}
+  #lightbox img{margin:auto;max-width:none;height:auto;
+    border-radius:8px;box-shadow:0 24px 70px rgba(0,0,0,.6)}
 </style>
 </head>
 <body>
@@ -508,6 +515,9 @@
   <span>준비중입니다.</span>
 </div>
 
+<!-- LIGHTBOX -->
+<div id="lightbox" aria-hidden="true"><img alt="" /></div>
+
 <script>
   const toast = document.getElementById('toast');
   let toastTimer;
@@ -519,6 +529,33 @@
   document.querySelectorAll('[data-dl]').forEach(btn=>{
     btn.addEventListener('click', showToast);
   });
+
+  // 스크린샷(img/ 로 시작하는 이미지) 클릭 → 원본 크기 팝업, 아무 곳 클릭/ESC 로 닫기
+  const lb = document.getElementById('lightbox');
+  const lbImg = lb.querySelector('img');
+  function openLightbox(src, alt){
+    lbImg.src = src;
+    lbImg.alt = alt || '';
+    // 원본의 70% 크기로 표시(naturalWidth 기준 → 브라우저 무관하게 일정)
+    const applyHalf = ()=>{ lbImg.style.width = (lbImg.naturalWidth * 0.7) + 'px'; };
+    if (lbImg.complete && lbImg.naturalWidth) applyHalf();
+    else lbImg.onload = applyHalf;
+    lb.classList.add('open');
+    lb.setAttribute('aria-hidden','false');
+    document.body.style.overflow = 'hidden'; // 배경 스크롤 잠금
+    lb.scrollTop = 0; lb.scrollLeft = 0;
+  }
+  function closeLightbox(){
+    lb.classList.remove('open');
+    lb.setAttribute('aria-hidden','true');
+    lbImg.removeAttribute('src');
+    document.body.style.overflow = '';
+  }
+  document.querySelectorAll('img[src^="img/"]').forEach(img=>{
+    img.addEventListener('click', ()=> openLightbox(img.src, img.alt));
+  });
+  lb.addEventListener('click', closeLightbox);            // 어디를 눌러도 닫힘
+  document.addEventListener('keydown', e=>{ if(e.key === 'Escape') closeLightbox(); });
 </script>
 </body>
 </html>

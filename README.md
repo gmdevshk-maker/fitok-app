@@ -1,4 +1,6 @@
-# FiTok
+# FiTok (GooglePlay 출시준비중...)
+
+## 소개페이지: https://fitok-app.vercel.app/
 
 같은 WiFi에 접속한 사람들과 **서버 없이** 채팅하는 Flutter 앱입니다. UDP 멀티캐스트/유니캐스트로
 같은 로컬 네트워크의 기기를 자동 발견해 메시지를 주고받으며(LAN P2P), **Windows 버전에는
