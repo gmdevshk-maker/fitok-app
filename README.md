@@ -1,4 +1,4 @@
-# FiTok (GooglePlay 출시준비중...)
+# FiTok
 
 ## 소개페이지: https://fitok-app.vercel.app/
 
